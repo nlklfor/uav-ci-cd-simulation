@@ -1,18 +1,18 @@
-FROM ubuntu:22.04
-
-ENV DEBIAN_FRONTEND=noninteractive
+FROM ros:humble
 
 RUN apt-get update && apt-get install -y \
-    python3.10 \
+    ros-humble-ros-gz \
+    ignition-fortress \
     python3-pip \
-    && apt-get clean 
-    
+    && rm -rf /var/lib/apt/lists/*
+
+SHELL ["/bin/bash", "-c"]
+
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
 WORKDIR /app
 
-COPY requirements.txt .
+COPY scripts/run_simulation.sh /app/run_simulation.sh
+RUN chmod +x /app/run_simulation.sh
 
-RUN pip install -r requirements.txt
-
-COPY . .
-
-CMD [ "python3", "scripts/test.py" ]
+CMD ["/bin/bash", "/app/run_simulation.sh"]
