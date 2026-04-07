@@ -2,17 +2,9 @@
 
 set -e
 
-echo "Checking Gazebo installation..."
+echo "Starting simulation script..."
 
-if ! command -v ign &> /dev/null
-then
-    echo "ign command not found!"
-    exit 1
-fi
-
-echo "Starting Gazebo..."
-
-ign gazebo -r -s &
+ign gazebo /app/worlds/simple_world.sdf -r -s &
 
 SIM_PID=$!
 

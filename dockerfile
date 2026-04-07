@@ -13,6 +13,8 @@ RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 WORKDIR /app
 
 COPY scripts/run_simulation.sh /app/run_simulation.sh
+COPY worlds /app/worlds
+
 RUN chmod +x /app/run_simulation.sh
 
 CMD ["/bin/bash", "/app/run_simulation.sh"]
