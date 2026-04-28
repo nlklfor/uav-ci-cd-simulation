@@ -16,7 +16,11 @@ sleep 2
 echo "[3/3] Starting UAV Controller node..."
 ros2 run uav_control controller &
 
-echo "All processes started. Waiting..."
-wait
+echo "All processes started. Running simulation for 10 seconds..."
+sleep 10
 
-echo "Simulation finished."
+echo "Stopping simulation..."
+kill $(jobs -p) 2>/dev/null
+
+echo "Simulation finished successfully."
+exit 0
