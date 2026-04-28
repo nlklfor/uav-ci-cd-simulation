@@ -9,12 +9,17 @@ uav-ci-cd-simulation/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                  # GitHub Actions CI pipeline
+├── ros2_ws/
+│   └── src/
+│       └── uav_control/            # ROS2 UAV controller package
+│           └── uav_control/
+│               └── controller.py   # Publishes velocity commands to /cmd_vel
 ├── scripts/
-│   ├── run_simulation.sh           # Docker entrypoint — launches Gazebo and runs tests
+│   ├── run_simulation.sh           # Docker entrypoint — launches Gazebo, Bridge, and ROS2 node
 │   └── test.py                     # UAV collision test script
 ├── worlds/
-│   └── simple_world.sdf            # Gazebo simulation world definition
-├── dockerfile                      # Docker image definition (ROS2 + Gazebo)
+│   └── simple_world.sdf            # Gazebo simulation world with UAV model and plugins
+├── dockerfile                      # Docker image definition (ROS2 + Gazebo + workspace build)
 ├── requirements.txt                # Python dependencies
 └── README.md
 ```
@@ -43,15 +48,18 @@ The container entrypoint is `run_simulation.sh`.
 Orchestrates the full simulation run inside the container:
 1. Launches Gazebo Ignition in **server-only mode** (`-s`) so no GUI is needed (headless for CI)
 2. Starts the simulation immediately (`-r`) with the world defined in `simple_world.sdf`
-3. Lets the simulation run for 5 seconds
-4. Stops the simulation and exits
+3. Starts the **ROS-Gazebo Bridge** — bridges `/cmd_vel` from ROS2 to Gazebo
+4. Starts the **UAV Controller** ROS2 node — publishes velocity commands
+5. Waits for all processes; exits with non-zero code if any process fails
 
 ### World File (`worlds/simple_world.sdf`)
 
 Defines the Gazebo simulation environment using SDF (Simulation Description Format):
 - **Directional light** — simulates sunlight
 - **Ground plane** — flat surface for the simulation
-- **Box model** — a 1m cube with physics (mass, collision, visual) placed at the origin
+- **UAV model** — box with physics (mass, collision, visual) placed at 1m height
+- **Physics plugin** — enables Gazebo physics engine
+- **VelocityControl plugin** — listens to `/cmd_vel` and applies velocity to the UAV model
 
 ### Test Script (`scripts/test.py`)
 
@@ -78,10 +86,20 @@ docker run --rm uav-sim
 ### Expected output
 
 ```
-Starting simulation script...
-Stopping simulation...
-Simulation completed successfully
+[1/3] Starting Gazebo...
+[2/3] Starting ROS-Gazebo Bridge...
+[3/3] Starting UAV Controller node...
+All processes started. Waiting...
+Sending velocity command
+Sending velocity command
+...
+Simulation finished.
 ```
+
+## Author
+
+**Slieptsov Mykyta**
+University of Bern — DevOps for Cyber-Physical Systems
 
 ## Roadmap
 
