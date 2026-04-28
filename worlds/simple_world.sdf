@@ -2,6 +2,19 @@
 <sdf version="1.6">
   <world name="default">
 
+    <plugin
+      filename="ignition-gazebo-physics-system"
+      name="ignition::gazebo::systems::Physics">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-user-commands-system"
+      name="ignition::gazebo::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-scene-broadcaster-system"
+      name="ignition::gazebo::systems::SceneBroadcaster">
+    </plugin>
+
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -37,6 +50,12 @@
 
     <model name="uav">
       <pose>0 0 1 0 0 0</pose>
+      <plugin
+        filename="ignition-gazebo-velocity-control-system"
+        name="ignition::gazebo::systems::VelocityControl">
+        <topic>/cmd_vel</topic>
+      </plugin>
+
       <link name="base_link">
         <inertial>
           <mass>1.0</mass>
