@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -12,7 +13,10 @@ RESULTS_FILE = 'perception_results.json'
 
 
 def main():
-    test_image = str(Path(ultralytics.__file__).parent / 'assets' / 'bus.jpg')
+    scene_capture = 'scene_capture.jpg'
+    fallback_image = str(Path(ultralytics.__file__).parent / 'assets' / 'bus.jpg')
+    test_image = scene_capture if os.path.exists(scene_capture) else fallback_image
+    print(f"Using image: {test_image}")
 
     print("Loading YOLOv8n model...")
     model = YOLO('yolov8n.pt')

@@ -1,10 +1,13 @@
 import math
 import json
 
+import cv2
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 TARGET = (5.0, 3.0, 0.0)
 TOLERANCE = 0.5
@@ -24,8 +27,14 @@ class UAVController(Node):
         self.position = None
         self.mission_done = False
         self.start_time = self.get_clock().now()
+        self.bridge = CvBridge()
+        self.latest_frame = None
 
+        self.create_subscription(Image, '/uav/camera', self.camera_callback, 10)
         self.create_timer(0.1, self.fly_to_target)
+
+    def camera_callback(self, msg):
+        self.latest_frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
 
     def odom_callback(self, msg):
         pos = msg.pose.pose.position
@@ -80,6 +89,11 @@ class UAVController(Node):
         with open(METRICS_FILE, 'w') as f:
             json.dump(metrics, f, indent=2)
         self.get_logger().info(f'Metrics saved → {METRICS_FILE}')
+
+        if self.latest_frame is not None:
+            cv2.imwrite('/app/scene_capture.jpg', self.latest_frame)
+            self.get_logger().info('Scene capture saved → /app/scene_capture.jpg')
+
         rclpy.shutdown()
 
 

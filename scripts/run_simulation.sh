@@ -5,14 +5,15 @@ set -e
 echo "[1/3] Starting Gazebo..."
 ign gazebo /app/worlds/simple_world.sdf -r -s &
 
-sleep 5
+sleep 10
 
 echo "[2/3] Starting ROS-Gazebo Bridge..."
 ros2 run ros_gz_bridge parameter_bridge \
   /cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist \
-  /model/uav/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry &
+  /model/uav/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry \
+  /uav/camera@sensor_msgs/msg/Image[ignition.msgs.Image &
 
-sleep 2
+sleep 3
 
 echo "[3/3] Starting UAV Controller node..."
 

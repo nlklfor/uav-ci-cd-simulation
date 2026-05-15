@@ -39,10 +39,11 @@ jobs:
           docker run --name uav-run \
             ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }} || true
 
-      - name: Extract metrics from container
+      - name: Extract artifacts from container
         run: |
           docker cp uav-run:/app/metrics.json ./metrics.json 2>/dev/null || \
             echo '{"mission_success": false, "error": "simulation crashed - no metrics"}' > metrics.json
+          docker cp uav-run:/app/scene_capture.jpg ./scene_capture.jpg 2>/dev/null || true
           docker rm uav-run
 
       - name: Upload simulation metrics
@@ -51,13 +52,27 @@ jobs:
           name: simulation-metrics
           path: metrics.json
 
+      - name: Upload scene capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-capture
+          path: scene_capture.jpg
+          if-no-files-found: warn
+
   perception-test:
     name: Perception Test (YOLO)
-    needs: build
+    needs: simulate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Download scene capture
+        uses: actions/download-artifact@v4
+        with:
+          name: scene-capture
+          path: .
+        continue-on-error: true
 
       - name: Install YOLO dependencies
         run: pip install ultralytics

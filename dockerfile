@@ -2,8 +2,10 @@ FROM ros:humble
 
 RUN apt-get update && apt-get install -y \
     ros-humble-ros-gz \
+    ros-humble-cv-bridge \
     ignition-fortress \
     python3-pip \
+    python3-opencv \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
