@@ -45,60 +45,100 @@ jobs:
             echo '{"mission_success": false, "error": "simulation crashed - no metrics"}' > metrics.json
           docker rm uav-run
 
-      - name: Upload metrics as artifact
+      - name: Upload simulation metrics
         uses: actions/upload-artifact@v4
         with:
           name: simulation-metrics
           path: metrics.json
 
-  report:
-    name: Test Report
-    needs: simulate
+  perception-test:
+    name: Perception Test (YOLO)
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download metrics artifact
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install YOLO dependencies
+        run: pip install ultralytics
+
+      - name: Run YOLO perception test
+        run: python3 tests/test_perception.py
+
+      - name: Upload perception results
+        uses: actions/upload-artifact@v4
+        with:
+          name: perception-results
+          path: perception_results.json
+
+  report:
+    name: Test Report
+    needs: [simulate, perception-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download simulation metrics
         uses: actions/download-artifact@v4
         with:
           name: simulation-metrics
 
-      - name: Display simulation report
+      - name: Download perception results
+        uses: actions/download-artifact@v4
+        with:
+          name: perception-results
+
+      - name: Display full report
         run: |
           python3 - <<'EOF'
           import json, os
-          m = json.load(open('metrics.json'))
-          result = "PASS" if m['mission_success'] else "FAIL"
-          badge = "✅" if m['mission_success'] else "❌"
 
-          # Console output
+          sim = json.load(open('metrics.json'))
+          perc = json.load(open('perception_results.json'))
+
+          sim_ok = sim.get('mission_success', False)
+          perc_ok = perc.get('test_passed', False)
+          overall = sim_ok and perc_ok
+
+          sim_badge = "✅" if sim_ok else "❌"
+          perc_badge = "✅" if perc_ok else "❌"
+          overall_badge = "✅" if overall else "❌"
+
+          # Console
           print("=" * 40)
-          print("UAV SIMULATION TEST REPORT")
-          print("=" * 40)
-          if 'error' in m:
-              print(f"ERROR: {m['error']}")
-          else:
-              t = m['target']
-              p = m['final_position']
-              print(f"Target:      ({t['x']}, {t['y']}, {t['z']})")
-              print(f"Final pos:   ({p['x']}, {p['y']}, {p['z']})")
-              print(f"Deviation:   {m['deviation_from_target_m']} m")
-              print(f"Flight time: {m['flight_time_s']} s")
-          print("=" * 40)
-          print(f"RESULT: {result}")
+          print(f"SIMULATION:  {'PASS' if sim_ok else 'FAIL'}")
+          print(f"PERCEPTION:  {'PASS' if perc_ok else 'FAIL'}")
+          print(f"OVERALL:     {'PASS' if overall else 'FAIL'}")
           print("=" * 40)
 
-          # GitHub Actions Job Summary
+          # Job Summary
           summary = os.environ.get('GITHUB_STEP_SUMMARY')
-          if summary and 'error' not in m:
-              t = m['target']
-              p = m['final_position']
+          if summary:
+              t = sim.get('target', {})
+              p = sim.get('final_position', {})
               with open(summary, 'w') as f:
-                  f.write(f"# {badge} UAV Simulation — {result}\n\n")
+                  f.write(f"# {overall_badge} UAV CI/CD Pipeline — {'PASS' if overall else 'FAIL'}\n\n")
+
+                  f.write(f"## {sim_badge} Simulation Test\n\n")
                   f.write("| Metric | Value |\n|---|---|\n")
-                  f.write(f"| Target | ({t['x']}, {t['y']}, {t['z']}) |\n")
-                  f.write(f"| Final position | ({p['x']}, {p['y']}, {p['z']}) |\n")
-                  f.write(f"| Deviation | {m['deviation_from_target_m']} m |\n")
-                  f.write(f"| Flight time | {m['flight_time_s']} s |\n")
+                  f.write(f"| Target | ({t.get('x')}, {t.get('y')}, {t.get('z')}) |\n")
+                  f.write(f"| Final position | ({p.get('x')}, {p.get('y')}, {p.get('z')}) |\n")
+                  f.write(f"| Deviation | {sim.get('deviation_from_target_m')} m |\n")
+                  f.write(f"| Flight time | {sim.get('flight_time_s')} s |\n\n")
+
+                  f.write(f"## {perc_badge} Perception Test (YOLO)\n\n")
+                  f.write("| Metric | Value |\n|---|---|\n")
+                  f.write(f"| Model | {perc.get('model')} |\n")
+                  f.write(f"| Detections | {perc.get('detections_count')} |\n")
+                  f.write(f"| Max confidence | {perc.get('max_confidence')} |\n")
+                  f.write(f"| Latency | {perc.get('inference_latency_ms')} ms |\n")
+                  f.write(f"| Detected classes | {', '.join(perc.get('detected_classes', []))} |\n")
           EOF
 
-      - name: Check mission result
-        run: python3 -c "import json,sys; m=json.load(open('metrics.json')); sys.exit(0 if m['mission_success'] else 1)"
+      - name: Check overall result
+        run: |
+          python3 -c "
+          import json, sys
+          sim = json.load(open('metrics.json'))
+          perc = json.load(open('perception_results.json'))
+          passed = sim.get('mission_success', False) and perc.get('test_passed', False)
+          sys.exit(0 if passed else 1)
+          "
