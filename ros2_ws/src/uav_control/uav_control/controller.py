@@ -12,7 +12,7 @@ from cv_bridge import CvBridge
 TARGET = (5.0, 3.0, 0.0)
 TOLERANCE = 0.5
 MAX_SPEED = 1.0
-TIMEOUT = 8.0
+TIMEOUT = 20.0
 METRICS_FILE = '/app/metrics.json'
 
 
@@ -34,7 +34,10 @@ class UAVController(Node):
         self.create_timer(0.1, self.fly_to_target)
 
     def camera_callback(self, msg):
-        self.latest_frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        try:
+            self.latest_frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        except Exception as e:
+            self.get_logger().warn(f'Camera decode error: {e}')
 
     def odom_callback(self, msg):
         pos = msg.pose.pose.position

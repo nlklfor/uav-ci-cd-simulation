@@ -26,6 +26,9 @@ COPY scripts/run_simulation.sh /app/run_simulation.sh
 COPY scripts/test.py /app/test.py
 COPY worlds /app/worlds
 
+# Pre-cache Fuel models so they don't download at simulation runtime
+RUN ign gazebo /app/worlds/simple_world.sdf -r -s & IGN_PID=$!; sleep 45; kill $IGN_PID 2>/dev/null; true
+
 RUN chmod +x /app/run_simulation.sh
 
 CMD ["/bin/bash", "-c", \
