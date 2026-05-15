@@ -64,8 +64,12 @@ jobs:
       - name: Display simulation report
         run: |
           python3 - <<'EOF'
-          import json
+          import json, os
           m = json.load(open('metrics.json'))
+          result = "PASS" if m['mission_success'] else "FAIL"
+          badge = "✅" if m['mission_success'] else "❌"
+
+          # Console output
           print("=" * 40)
           print("UAV SIMULATION TEST REPORT")
           print("=" * 40)
@@ -79,8 +83,21 @@ jobs:
               print(f"Deviation:   {m['deviation_from_target_m']} m")
               print(f"Flight time: {m['flight_time_s']} s")
           print("=" * 40)
-          print("RESULT:", "PASS" if m['mission_success'] else "FAIL")
+          print(f"RESULT: {result}")
           print("=" * 40)
+
+          # GitHub Actions Job Summary
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary and 'error' not in m:
+              t = m['target']
+              p = m['final_position']
+              with open(summary, 'w') as f:
+                  f.write(f"# {badge} UAV Simulation — {result}\n\n")
+                  f.write("| Metric | Value |\n|---|---|\n")
+                  f.write(f"| Target | ({t['x']}, {t['y']}, {t['z']}) |\n")
+                  f.write(f"| Final position | ({p['x']}, {p['y']}, {p['z']}) |\n")
+                  f.write(f"| Deviation | {m['deviation_from_target_m']} m |\n")
+                  f.write(f"| Flight time | {m['flight_time_s']} s |\n")
           EOF
 
       - name: Check mission result
