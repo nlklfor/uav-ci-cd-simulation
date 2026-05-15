@@ -62,27 +62,6 @@
         name="ignition::gazebo::systems::OdometryPublisher">
       </plugin>
 
-      <link name="camera_link">
-        <gravity>false</gravity>
-        <pose>0 0 -0.1 0 1.5708 0</pose>
-        <sensor name="camera" type="camera">
-          <camera>
-            <horizontal_fov>1.047</horizontal_fov>
-            <image>
-              <width>640</width>
-              <height>480</height>
-            </image>
-            <clip>
-              <near>0.1</near>
-              <far>100</far>
-            </clip>
-          </camera>
-          <always_on>1</always_on>
-          <update_rate>5</update_rate>
-          <topic>/uav/camera</topic>
-        </sensor>
-      </link>
-
       <link name="base_link">
         <gravity>false</gravity>
         <inertial>
@@ -105,6 +84,24 @@
             <ambient>0 0 1 1</ambient>
           </material>
         </visual>
+
+        <sensor name="camera" type="camera">
+          <pose>0 0 -0.1 0 1.5708 0</pose>
+          <camera>
+            <horizontal_fov>1.047</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+            </image>
+            <clip>
+              <near>0.1</near>
+              <far>100</far>
+            </clip>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>5</update_rate>
+          <topic>/uav/camera</topic>
+        </sensor>
       </link>
     </model>
 

@@ -46,6 +46,21 @@ class UAVController(Node):
 
         elapsed = (self.get_clock().now() - self.start_time).nanoseconds / 1e9
 
+        if elapsed > TIMEOUT and self.position is None:
+            self.get_logger().error('TIMEOUT — no odometry received, simulation likely failed')
+            self.mission_done = True
+            metrics = {
+                'mission_success': False,
+                'target': {'x': TARGET[0], 'y': TARGET[1], 'z': TARGET[2]},
+                'final_position': {'x': 0.0, 'y': 0.0, 'z': 0.0},
+                'deviation_from_target_m': -1.0,
+                'flight_time_s': round(elapsed, 2),
+            }
+            with open(METRICS_FILE, 'w') as f:
+                json.dump(metrics, f, indent=2)
+            rclpy.shutdown()
+            return
+
         if self.position is None:
             return
 
