@@ -1,15 +1,87 @@
-name: CI test
+name: UAV Simulation CI/CD Pipeline
 
-on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
 jobs:
   build:
+    name: Build Docker Image
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Test
-        run: echo "CI pipeline works ok"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Build Docker image
-        run: docker build -t uav-sim .
-      - name: Run Docker container
-        run: docker run uav-sim
+        run: docker build -f dockerfile -t ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }} .
+
+      - name: Push image to GHCR
+        run: docker push ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }}
+
+  simulate:
+    name: Run UAV Simulation
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull Docker image
+        run: docker pull ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }}
+
+      - name: Run simulation
+        run: |
+          docker run --name uav-run \
+            ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }} || true
+
+      - name: Extract metrics from container
+        run: |
+          docker cp uav-run:/app/metrics.json ./metrics.json 2>/dev/null || \
+            echo '{"mission_success": false, "error": "simulation crashed - no metrics"}' > metrics.json
+          docker rm uav-run
+
+      - name: Upload metrics as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-metrics
+          path: metrics.json
+
+  report:
+    name: Test Report
+    needs: simulate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download metrics artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: simulation-metrics
+
+      - name: Display simulation report
+        run: |
+          python3 - <<'EOF'
+          import json
+          m = json.load(open('metrics.json'))
+          print("=" * 40)
+          print("UAV SIMULATION TEST REPORT")
+          print("=" * 40)
+          if 'error' in m:
+              print(f"ERROR: {m['error']}")
+          else:
+              t = m['target']
+              p = m['final_position']
+              print(f"Target:      ({t['x']}, {t['y']}, {t['z']})")
+              print(f"Final pos:   ({p['x']}, {p['y']}, {p['z']})")
+              print(f"Deviation:   {m['deviation_from_target_m']} m")
+              print(f"Flight time: {m['flight_time_s']} s")
+          print("=" * 40)
+          print("RESULT:", "PASS" if m['mission_success'] else "FAIL")
+          print("=" * 40)
+          EOF
+
+      - name: Check mission result
+        run: python3 -c "import json,sys; m=json.load(open('metrics.json')); sys.exit(0 if m['mission_success'] else 1)"
