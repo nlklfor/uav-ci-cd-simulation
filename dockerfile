@@ -6,6 +6,10 @@ RUN apt-get update && apt-get install -y \
     ignition-fortress \
     python3-pip \
     python3-opencv \
+    xvfb \
+    libgl1-mesa-dri \
+    libgles2 \
+    libegl1 \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]

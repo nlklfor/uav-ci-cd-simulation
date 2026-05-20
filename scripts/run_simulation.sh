@@ -2,6 +2,13 @@
 
 set -e
 
+echo "[0/3] Starting virtual display for camera rendering..."
+Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX -noreset &
+export DISPLAY=:99
+export LIBGL_ALWAYS_SOFTWARE=1
+export MESA_GL_VERSION_OVERRIDE=3.3
+sleep 2
+
 echo "[1/3] Starting Gazebo..."
 ign gazebo /app/worlds/simple_world.sdf -r -s &
 
