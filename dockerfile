@@ -18,7 +18,8 @@ WORKDIR /app
 
 COPY ros2_ws/src /app/ros2_ws/src
 
-RUN pip3 install --break-system-packages --no-cache-dir ultralytics
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install --no-cache-dir ultralytics
 
 RUN source /opt/ros/humble/setup.bash && \
     rosdep update && \
