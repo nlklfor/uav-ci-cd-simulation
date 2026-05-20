@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'controller = uav_control.controller:main',
+            'perception = uav_control.perception_node:main',
         ],
     },
 )

@@ -18,6 +18,8 @@ WORKDIR /app
 
 COPY ros2_ws/src /app/ros2_ws/src
 
+RUN pip3 install ultralytics
+
 RUN source /opt/ros/humble/setup.bash && \
     rosdep update && \
     rosdep install --from-paths /app/ros2_ws/src --ignore-src -r -y

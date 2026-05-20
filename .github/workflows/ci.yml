@@ -59,27 +59,6 @@ jobs:
           path: scene_capture.jpg
           if-no-files-found: warn
 
-  perception-test:
-    name: Perception Test (YOLO)
-    needs: simulate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download scene capture
-        uses: actions/download-artifact@v4
-        with:
-          name: scene-capture
-          path: .
-        continue-on-error: true
-
-      - name: Install YOLO dependencies
-        run: pip install ultralytics
-
-      - name: Run YOLO perception test
-        run: python3 tests/test_perception.py
-
       - name: Upload perception results
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,7 +68,7 @@ jobs:
 
   report:
     name: Test Report
-    needs: [simulate, perception-test]
+    needs: [simulate]
     if: always()
     runs-on: ubuntu-latest
     steps:
