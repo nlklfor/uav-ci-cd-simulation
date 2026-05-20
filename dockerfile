@@ -30,10 +30,6 @@ COPY scripts/run_simulation.sh /app/run_simulation.sh
 COPY scripts/test.py /app/test.py
 COPY worlds /app/worlds
 
-# Pre-cache Fuel models at build time so they don't download at simulation runtime
-RUN ign fuel download -u "https://fuel.gazebosim.org/1.0/OpenRobotics/models/Person%20Standing" 2>/dev/null || true && \
-    ign fuel download -u "https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sedan" 2>/dev/null || true
-
 RUN chmod +x /app/run_simulation.sh
 
 CMD ["/bin/bash", "-c", \

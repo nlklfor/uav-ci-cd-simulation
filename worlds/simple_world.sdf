@@ -110,26 +110,5 @@
       </link>
     </model>
 
-    <include>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Person%20Standing</uri>
-      <name>person_1</name>
-      <static>true</static>
-      <pose>2 1 0 0 0 0</pose>
-    </include>
-
-    <include>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Person%20Standing</uri>
-      <name>person_2</name>
-      <static>true</static>
-      <pose>4 2 0 0 0 1.57</pose>
-    </include>
-
-    <include>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sedan</uri>
-      <name>car_1</name>
-      <static>true</static>
-      <pose>3 1 0 0 0 0</pose>
-    </include>
-
   </world>
 </sdf>
