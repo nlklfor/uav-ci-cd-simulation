@@ -30,6 +30,13 @@ COPY scripts/run_simulation.sh /app/run_simulation.sh
 COPY scripts/test.py /app/test.py
 COPY worlds /app/worlds
 
+# Pre-cache Fuel models during image build so they don't download at runtime
+RUN Xvfb :99 -screen 0 1280x1024x24 -ac -noreset & \
+    export DISPLAY=:99 && \
+    export LIBGL_ALWAYS_SOFTWARE=1 && \
+    ign gazebo /app/worlds/simple_world.sdf -r -s & \
+    IGN_PID=$! && sleep 60 && kill $IGN_PID 2>/dev/null; true
+
 RUN chmod +x /app/run_simulation.sh
 
 CMD ["/bin/bash", "-c", \

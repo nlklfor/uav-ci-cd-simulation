@@ -81,6 +81,7 @@ jobs:
         run: python3 tests/test_perception.py
 
       - name: Upload perception results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: perception-results
@@ -89,6 +90,7 @@ jobs:
   report:
     name: Test Report
     needs: [simulate, perception-test]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Download simulation metrics
