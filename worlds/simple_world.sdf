@@ -23,7 +23,7 @@
       <direction>0 0 -1</direction>
     </light>
 
-    <!-- Green ground -->
+    <!-- Green grass ground -->
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
@@ -44,120 +44,120 @@
       </link>
     </model>
 
-    <!-- Dark road -->
+    <!-- Dark road running along UAV path -->
     <model name="road">
       <static>true</static>
       <pose>3.0 1.5 0.01 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>16 4.0 0.02</size></box>
+            <box><size>16 5.0 0.02</size></box>
           </geometry>
           <material>
-            <ambient>0.18 0.18 0.18 1</ambient>
-            <diffuse>0.18 0.18 0.18 1</diffuse>
+            <ambient>0.15 0.15 0.15 1</ambient>
+            <diffuse>0.15 0.15 0.15 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Building west: gray -->
-    <model name="building_west">
+    <!-- Gray building north of road -->
+    <model name="building_north">
       <static>true</static>
-      <pose>-1.5 1.5 2.5 0 0 0</pose>
+      <pose>3.0 -3.0 2.0 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>3.0 6.0 5.0</size></box>
+            <box><size>8.0 4.0 4.0</size></box>
           </geometry>
           <material>
-            <ambient>0.58 0.58 0.62 1</ambient>
-            <diffuse>0.58 0.58 0.62 1</diffuse>
+            <ambient>0.55 0.55 0.6 1</ambient>
+            <diffuse>0.55 0.55 0.6 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Building east: beige -->
-    <model name="building_east">
+    <!-- Beige building south of road -->
+    <model name="building_south">
       <static>true</static>
-      <pose>7.5 1.5 2.0 0 0 0</pose>
+      <pose>3.0 6.0 2.0 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>3.0 6.0 4.0</size></box>
+            <box><size>8.0 4.0 4.0</size></box>
           </geometry>
           <material>
-            <ambient>0.78 0.67 0.5 1</ambient>
-            <diffuse>0.78 0.67 0.5 1</diffuse>
+            <ambient>0.8 0.68 0.5 1</ambient>
+            <diffuse>0.8 0.68 0.5 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Green car -->
-    <model name="car_green">
+    <!-- RED truck on road - directly under flight path -->
+    <model name="truck_red">
       <static>true</static>
-      <pose>1.5 1.0 0.4 0 0 0</pose>
+      <pose>1.5 1.2 0.75 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>2.0 0.9 0.8</size></box>
+            <box><size>4.0 1.8 1.5</size></box>
           </geometry>
           <material>
-            <ambient>0.1 0.72 0.2 1</ambient>
-            <diffuse>0.1 0.72 0.2 1</diffuse>
+            <ambient>0.9 0.05 0.05 1</ambient>
+            <diffuse>0.9 0.05 0.05 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Blue car -->
-    <model name="car_blue">
+    <!-- BLUE truck on road - directly under flight path -->
+    <model name="truck_blue">
       <static>true</static>
-      <pose>4.0 2.0 0.4 0 0 0</pose>
+      <pose>4.5 1.8 0.75 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>2.0 0.9 0.8</size></box>
+            <box><size>4.0 1.8 1.5</size></box>
           </geometry>
           <material>
-            <ambient>0.1 0.2 0.82 1</ambient>
-            <diffuse>0.1 0.2 0.82 1</diffuse>
+            <ambient>0.05 0.15 0.9 1</ambient>
+            <diffuse>0.05 0.15 0.9 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Person 1: red -->
+    <!-- Person 1: bright white, north sidewalk -->
     <model name="person_1">
       <static>true</static>
-      <pose>2.0 -0.3 0.9 0 0 0</pose>
+      <pose>2.0 -0.6 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <cylinder><radius>0.25</radius><length>1.8</length></cylinder>
+            <cylinder><radius>0.3</radius><length>1.8</length></cylinder>
           </geometry>
           <material>
-            <ambient>0.95 0.1 0.1 1</ambient>
-            <diffuse>0.95 0.1 0.1 1</diffuse>
+            <ambient>0.95 0.95 0.95 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Person 2: orange -->
+    <!-- Person 2: bright magenta, south sidewalk -->
     <model name="person_2">
       <static>true</static>
-      <pose>3.5 3.3 0.9 0 0 0</pose>
+      <pose>4.0 3.6 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <cylinder><radius>0.25</radius><length>1.8</length></cylinder>
+            <cylinder><radius>0.3</radius><length>1.8</length></cylinder>
           </geometry>
           <material>
-            <ambient>1.0 0.5 0.0 1</ambient>
-            <diffuse>1.0 0.5 0.0 1</diffuse>
+            <ambient>0.9 0.1 0.8 1</ambient>
+            <diffuse>0.9 0.1 0.8 1</diffuse>
           </material>
         </visual>
       </link>
