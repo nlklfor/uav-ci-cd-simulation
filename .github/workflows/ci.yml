@@ -43,6 +43,8 @@ jobs:
         run: |
           docker cp uav-run:/app/metrics.json ./metrics.json 2>/dev/null || \
             echo '{"mission_success": false, "error": "simulation crashed - no metrics"}' > metrics.json
+          docker cp uav-run:/app/perception_results.json ./perception_results.json 2>/dev/null || \
+            echo '{"test_passed": false, "frames_processed": 0, "error": "perception node did not run"}' > perception_results.json
           docker cp uav-run:/app/scene_capture.jpg ./scene_capture.jpg 2>/dev/null || true
           docker rm uav-run
 
@@ -123,9 +125,11 @@ jobs:
                   f.write(f"## {perc_badge} Perception Test (YOLO)\n\n")
                   f.write("| Metric | Value |\n|---|---|\n")
                   f.write(f"| Model | {perc.get('model')} |\n")
-                  f.write(f"| Detections | {perc.get('detections_count')} |\n")
+                  f.write(f"| Frames processed | {perc.get('frames_processed')} |\n")
+                  f.write(f"| Frames with detections | {perc.get('frames_with_detections')} |\n")
+                  f.write(f"| Detection rate | {perc.get('detection_rate')} |\n")
+                  f.write(f"| Avg latency | {perc.get('avg_latency_ms')} ms |\n")
                   f.write(f"| Max confidence | {perc.get('max_confidence')} |\n")
-                  f.write(f"| Latency | {perc.get('inference_latency_ms')} ms |\n")
                   f.write(f"| Detected classes | {', '.join(perc.get('detected_classes', []))} |\n")
           EOF
 
