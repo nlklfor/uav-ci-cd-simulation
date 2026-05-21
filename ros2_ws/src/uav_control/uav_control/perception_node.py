@@ -65,6 +65,9 @@ class PerceptionNode(Node):
             f'| latency {latency_ms:.0f}ms'
         )
 
+        # Write results after every frame so the file survives a SIGTERM kill
+        self.save_results()
+
     def save_results(self):
         if self.latest_frame is not None:
             cv2.imwrite(SCENE_CAPTURE_FILE, self.latest_frame)
