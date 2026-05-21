@@ -44,7 +44,7 @@
       </link>
     </model>
 
-    <!-- Dark asphalt road running along UAV path -->
+    <!-- Dark road -->
     <model name="road">
       <static>true</static>
       <pose>3.0 1.5 0.01 0 0 0</pose>
@@ -61,65 +61,14 @@
       </link>
     </model>
 
-    <!-- Yellow center line -->
-    <model name="road_center_line">
+    <!-- Building west: gray -->
+    <model name="building_west">
       <static>true</static>
-      <pose>3.0 1.5 0.02 0 0 0</pose>
+      <pose>-1.5 1.5 2.5 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>16 0.12 0.01</size></box>
-          </geometry>
-          <material>
-            <ambient>0.9 0.85 0.0 1</ambient>
-            <diffuse>0.9 0.85 0.0 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Sidewalk north -->
-    <model name="sidewalk_north">
-      <static>true</static>
-      <pose>3.0 -0.6 0.03 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>16 1.0 0.06</size></box>
-          </geometry>
-          <material>
-            <ambient>0.75 0.72 0.65 1</ambient>
-            <diffuse>0.75 0.72 0.65 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Sidewalk south -->
-    <model name="sidewalk_south">
-      <static>true</static>
-      <pose>3.0 3.6 0.03 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>16 1.0 0.06</size></box>
-          </geometry>
-          <material>
-            <ambient>0.75 0.72 0.65 1</ambient>
-            <diffuse>0.75 0.72 0.65 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Building 1: gray, northwest block -->
-    <model name="building_1">
-      <static>true</static>
-      <pose>-2.0 -2.5 2.5 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>3.5 3.5 5.0</size></box>
+            <box><size>3.0 6.0 5.0</size></box>
           </geometry>
           <material>
             <ambient>0.58 0.58 0.62 1</ambient>
@@ -129,14 +78,14 @@
       </link>
     </model>
 
-    <!-- Building 2: beige, southwest block -->
-    <model name="building_2">
+    <!-- Building east: beige -->
+    <model name="building_east">
       <static>true</static>
-      <pose>-2.0 5.5 2.0 0 0 0</pose>
+      <pose>7.5 1.5 2.0 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>4.0 3.5 4.0</size></box>
+            <box><size>3.0 6.0 4.0</size></box>
           </geometry>
           <material>
             <ambient>0.78 0.67 0.5 1</ambient>
@@ -146,218 +95,10 @@
       </link>
     </model>
 
-    <!-- Building 3: light blue-gray, northeast block -->
-    <model name="building_3">
-      <static>true</static>
-      <pose>8.0 -2.5 2.25 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>3.5 3.5 4.5</size></box>
-          </geometry>
-          <material>
-            <ambient>0.55 0.62 0.72 1</ambient>
-            <diffuse>0.55 0.62 0.72 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Building 4: warm tan, southeast block -->
-    <model name="building_4">
-      <static>true</static>
-      <pose>8.0 5.5 2.5 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>4.5 4.0 5.0</size></box>
-          </geometry>
-          <material>
-            <ambient>0.82 0.72 0.55 1</ambient>
-            <diffuse>0.82 0.72 0.55 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Building 5: red-brick, far northeast -->
-    <model name="building_5">
-      <static>true</static>
-      <pose>11.0 1.5 2.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>3.0 5.0 4.0</size></box>
-          </geometry>
-          <material>
-            <ambient>0.65 0.3 0.2 1</ambient>
-            <diffuse>0.65 0.3 0.2 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Tree 1: north sidewalk -->
-    <model name="tree_1_trunk">
-      <static>true</static>
-      <pose>0.5 -0.6 1.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.12</radius><length>2.0</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.38 0.22 0.08 1</ambient>
-            <diffuse>0.38 0.22 0.08 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="tree_1_canopy">
-      <static>true</static>
-      <pose>0.5 -0.6 2.6 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <sphere><radius>0.85</radius></sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.55 0.12 1</ambient>
-            <diffuse>0.15 0.55 0.12 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="tree_2_trunk">
-      <static>true</static>
-      <pose>3.0 -0.6 1.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.12</radius><length>2.0</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.38 0.22 0.08 1</ambient>
-            <diffuse>0.38 0.22 0.08 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="tree_2_canopy">
-      <static>true</static>
-      <pose>3.0 -0.6 2.6 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <sphere><radius>0.9</radius></sphere>
-          </geometry>
-          <material>
-            <ambient>0.2 0.6 0.1 1</ambient>
-            <diffuse>0.2 0.6 0.1 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="tree_3_trunk">
-      <static>true</static>
-      <pose>5.5 -0.6 1.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.12</radius><length>2.0</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.38 0.22 0.08 1</ambient>
-            <diffuse>0.38 0.22 0.08 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="tree_3_canopy">
-      <static>true</static>
-      <pose>5.5 -0.6 2.6 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <sphere><radius>0.8</radius></sphere>
-          </geometry>
-          <material>
-            <ambient>0.1 0.5 0.18 1</ambient>
-            <diffuse>0.1 0.5 0.18 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Trees south sidewalk -->
-    <model name="tree_4_trunk">
-      <static>true</static>
-      <pose>1.5 3.6 1.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.12</radius><length>2.0</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.38 0.22 0.08 1</ambient>
-            <diffuse>0.38 0.22 0.08 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="tree_4_canopy">
-      <static>true</static>
-      <pose>1.5 3.6 2.6 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <sphere><radius>0.85</radius></sphere>
-          </geometry>
-          <material>
-            <ambient>0.15 0.5 0.15 1</ambient>
-            <diffuse>0.15 0.5 0.15 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="tree_5_trunk">
-      <static>true</static>
-      <pose>4.5 3.6 1.0 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.12</radius><length>2.0</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.38 0.22 0.08 1</ambient>
-            <diffuse>0.38 0.22 0.08 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-    <model name="tree_5_canopy">
-      <static>true</static>
-      <pose>4.5 3.6 2.6 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <sphere><radius>0.9</radius></sphere>
-          </geometry>
-          <material>
-            <ambient>0.2 0.58 0.12 1</ambient>
-            <diffuse>0.2 0.58 0.12 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Cars on road -->
+    <!-- Green car -->
     <model name="car_green">
       <static>true</static>
-      <pose>1.2 0.9 0.4 0 0 0</pose>
+      <pose>1.5 1.0 0.4 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -371,9 +112,10 @@
       </link>
     </model>
 
+    <!-- Blue car -->
     <model name="car_blue">
       <static>true</static>
-      <pose>3.5 2.1 0.4 0 0 0</pose>
+      <pose>4.0 2.0 0.4 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -387,46 +129,31 @@
       </link>
     </model>
 
-    <model name="car_red">
-      <static>true</static>
-      <pose>5.8 1.0 0.38 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>1.8 0.85 0.75</size></box>
-          </geometry>
-          <material>
-            <ambient>0.88 0.1 0.1 1</ambient>
-            <diffuse>0.88 0.1 0.1 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- People on sidewalks -->
+    <!-- Person 1: red -->
     <model name="person_1">
       <static>true</static>
-      <pose>1.8 -0.2 0.9 0 0 0</pose>
+      <pose>2.0 -0.3 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <cylinder><radius>0.22</radius><length>1.8</length></cylinder>
+            <cylinder><radius>0.25</radius><length>1.8</length></cylinder>
           </geometry>
           <material>
-            <ambient>0.95 0.15 0.15 1</ambient>
-            <diffuse>0.95 0.15 0.15 1</diffuse>
+            <ambient>0.95 0.1 0.1 1</ambient>
+            <diffuse>0.95 0.1 0.1 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
+    <!-- Person 2: orange -->
     <model name="person_2">
       <static>true</static>
-      <pose>4.2 3.5 0.9 0 0 0</pose>
+      <pose>3.5 3.3 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
-            <cylinder><radius>0.22</radius><length>1.8</length></cylinder>
+            <cylinder><radius>0.25</radius><length>1.8</length></cylinder>
           </geometry>
           <material>
             <ambient>1.0 0.5 0.0 1</ambient>
@@ -436,25 +163,9 @@
       </link>
     </model>
 
-    <model name="person_3">
-      <static>true</static>
-      <pose>0.3 3.5 0.9 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <cylinder><radius>0.22</radius><length>1.8</length></cylinder>
-          </geometry>
-          <material>
-            <ambient>0.6 0.1 0.85 1</ambient>
-            <diffuse>0.6 0.1 0.85 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- UAV lowered to z=6 for a better aerial view -->
+    <!-- UAV raised back to z=10 where rendering was confirmed working -->
     <model name="uav">
-      <pose>0 0 6 0 0 0</pose>
+      <pose>0 0 10 0 0 0</pose>
       <plugin filename="ignition-gazebo-velocity-control-system"
               name="ignition::gazebo::systems::VelocityControl">
         <topic>/cmd_vel</topic>
