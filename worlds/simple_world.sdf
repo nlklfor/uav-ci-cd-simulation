@@ -163,9 +163,8 @@
       </link>
     </model>
 
-    <!-- UAV raised back to z=10 where rendering was confirmed working -->
     <model name="uav">
-      <pose>0 0 10 0 0 0</pose>
+      <pose>0 0 8 0 0 0</pose>
       <plugin filename="ignition-gazebo-velocity-control-system"
               name="ignition::gazebo::systems::VelocityControl">
         <topic>/cmd_vel</topic>
