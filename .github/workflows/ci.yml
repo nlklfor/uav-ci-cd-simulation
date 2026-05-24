@@ -24,9 +24,13 @@ jobs:
         run: docker push ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }}
 
   simulate:
-    name: Run UAV Simulation
+    name: Run Simulation (seed=${{ matrix.seed }})
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        seed: [42, 123, 456]
+
     steps:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -36,109 +40,148 @@ jobs:
 
       - name: Run simulation
         run: |
-          docker run --name uav-run \
+          docker run --name uav-run-${{ matrix.seed }} \
+            -e RANDOM_SEED=${{ matrix.seed }} \
             ghcr.io/${{ github.repository }}/uav-sim:${{ github.sha }} || true
 
       - name: Extract artifacts from container
         run: |
-          docker cp uav-run:/app/metrics.json ./metrics.json 2>/dev/null || \
-            echo '{"mission_success": false, "error": "simulation crashed - no metrics"}' > metrics.json
-          docker cp uav-run:/app/perception_results.json ./perception_results.json 2>/dev/null || \
-            echo '{"test_passed": false, "frames_processed": 0, "error": "perception node did not run"}' > perception_results.json
-          docker cp uav-run:/app/scene_capture.jpg ./scene_capture.jpg 2>/dev/null || true
-          docker rm uav-run
+          docker cp uav-run-${{ matrix.seed }}:/app/metrics.json ./metrics-${{ matrix.seed }}.json 2>/dev/null || \
+            echo '{"mission_success": false, "seed": ${{ matrix.seed }}, "error": "simulation crashed"}' > metrics-${{ matrix.seed }}.json
+          docker cp uav-run-${{ matrix.seed }}:/app/perception_results.json ./perception-${{ matrix.seed }}.json 2>/dev/null || \
+            echo '{"test_passed": false, "frames_processed": 0, "error": "perception node did not run"}' > perception-${{ matrix.seed }}.json
+          docker cp uav-run-${{ matrix.seed }}:/app/scene_capture.jpg ./scene_capture_${{ matrix.seed }}.jpg 2>/dev/null || true
+          docker rm uav-run-${{ matrix.seed }}
 
       - name: Upload simulation metrics
         uses: actions/upload-artifact@v4
         with:
-          name: simulation-metrics
-          path: metrics.json
-
-      - name: Upload scene capture
-        uses: actions/upload-artifact@v4
-        with:
-          name: scene-capture
-          path: scene_capture.jpg
-          if-no-files-found: warn
+          name: metrics-${{ matrix.seed }}
+          path: metrics-${{ matrix.seed }}.json
 
       - name: Upload perception results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: perception-results
-          path: perception_results.json
+          name: perception-${{ matrix.seed }}
+          path: perception-${{ matrix.seed }}.json
+
+      - name: Upload scene capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-capture-${{ matrix.seed }}
+          path: scene_capture_${{ matrix.seed }}.jpg
+          if-no-files-found: warn
 
   report:
-    name: Test Report
+    name: Variance Report
     needs: [simulate]
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Download simulation metrics
+      - name: Download all metrics
         uses: actions/download-artifact@v4
         with:
-          name: simulation-metrics
+          pattern: metrics-*
+          merge-multiple: true
 
-      - name: Download perception results
+      - name: Download all perception results
         uses: actions/download-artifact@v4
         with:
-          name: perception-results
+          pattern: perception-*
+          merge-multiple: true
 
-      - name: Display full report
+      - name: Display variance report
         run: |
           python3 - <<'EOF'
-          import json, os
+          import json, os, math
 
-          sim = json.load(open('metrics.json'))
-          perc = json.load(open('perception_results.json'))
+          seeds = [42, 123, 456]
+          runs = []
+          for seed in seeds:
+              try:
+                  sim  = json.load(open(f'metrics-{seed}.json'))
+                  perc = json.load(open(f'perception-{seed}.json'))
+                  runs.append({'seed': seed, 'sim': sim, 'perc': perc})
+              except Exception as e:
+                  print(f"WARNING: could not load seed {seed}: {e}")
 
-          sim_ok = sim.get('mission_success', False)
-          perc_ok = perc.get('test_passed', False)
-          overall = sim_ok and perc_ok
+          def stats(vals):
+              if not vals:
+                  return None, None
+              mean = sum(vals) / len(vals)
+              std  = math.sqrt(sum((v - mean) ** 2 for v in vals) / len(vals))
+              return round(mean, 3), round(std, 3)
 
-          sim_badge = "✅" if sim_ok else "❌"
-          perc_badge = "✅" if perc_ok else "❌"
-          overall_badge = "✅" if overall else "❌"
+          successful_sims  = [r for r in runs if r['sim'].get('mission_success')]
+          successful_percs = [r for r in runs if r['perc'].get('test_passed')]
 
-          # Console
-          print("=" * 40)
-          print(f"SIMULATION:  {'PASS' if sim_ok else 'FAIL'}")
-          print(f"PERCEPTION:  {'PASS' if perc_ok else 'FAIL'}")
-          print(f"OVERALL:     {'PASS' if overall else 'FAIL'}")
-          print("=" * 40)
+          dev_mean, dev_std = stats([r['sim']['deviation_from_target_m'] for r in successful_sims])
+          ft_mean,  ft_std  = stats([r['sim']['flight_time_s']           for r in successful_sims])
+          lat_mean, lat_std = stats([r['perc']['avg_latency_ms']         for r in successful_percs])
+          spd_mean, spd_std = stats([r['sim'].get('max_speed_ms', 1.0)   for r in successful_sims])
 
-          # Job Summary
+          all_passed    = all(r['sim'].get('mission_success') and r['perc'].get('test_passed') for r in runs)
+          overall_badge = "✅" if all_passed else "⚠️"
+
+          # Console output
+          print("=" * 60)
+          print(f"{'Seed':>6}  {'Speed':>8}  {'Deviation':>10}  {'FlightTime':>11}  {'Sim':>4}  {'Perc':>5}")
+          print("-" * 60)
+          for r in runs:
+              s = r['sim']
+              ok_s = "PASS" if s.get('mission_success') else "FAIL"
+              ok_p = "PASS" if r['perc'].get('test_passed') else "FAIL"
+              print(f"{r['seed']:>6}  {s.get('max_speed_ms', '?'):>8}  "
+                    f"{s.get('deviation_from_target_m', '?'):>10}m  "
+                    f"{s.get('flight_time_s', '?'):>10}s  {ok_s:>4}  {ok_p:>5}")
+          print("=" * 60)
+          print(f"Deviation :  {dev_mean} ± {dev_std} m")
+          print(f"FlightTime:  {ft_mean}  ± {ft_std}  s")
+          print(f"Latency   :  {lat_mean} ± {lat_std} ms")
+          print(f"MaxSpeed  :  {spd_mean} ± {spd_std} m/s")
+          print("=" * 60)
+
           summary = os.environ.get('GITHUB_STEP_SUMMARY')
           if summary:
-              t = sim.get('target', {})
-              p = sim.get('final_position', {})
               with open(summary, 'w') as f:
-                  f.write(f"# {overall_badge} UAV CI/CD Pipeline — {'PASS' if overall else 'FAIL'}\n\n")
+                  f.write(f"# {overall_badge} UAV CI/CD Pipeline — Variance Report\n\n")
 
-                  f.write(f"## {sim_badge} Simulation Test\n\n")
-                  f.write("| Metric | Value |\n|---|---|\n")
-                  f.write(f"| Target | ({t.get('x')}, {t.get('y')}, {t.get('z')}) |\n")
-                  f.write(f"| Final position | ({p.get('x')}, {p.get('y')}, {p.get('z')}) |\n")
-                  f.write(f"| Deviation | {sim.get('deviation_from_target_m')} m |\n")
-                  f.write(f"| Flight time | {sim.get('flight_time_s')} s |\n\n")
+                  f.write("## Per-Run Results\n\n")
+                  f.write("| Seed | Max Speed | Simulation | Perception | Deviation | Flight Time |\n")
+                  f.write("|---|---|---|---|---|---|\n")
+                  for r in runs:
+                      s = r['sim']
+                      sb = "✅" if s.get('mission_success') else "❌"
+                      pb = "✅" if r['perc'].get('test_passed') else "❌"
+                      f.write(f"| {r['seed']} | {s.get('max_speed_ms', '?')} m/s | {sb} | {pb} | "
+                              f"{s.get('deviation_from_target_m', '?')} m | "
+                              f"{s.get('flight_time_s', '?')} s |\n")
 
-                  f.write(f"## {perc_badge} Perception Test (YOLO)\n\n")
-                  f.write("| Metric | Value |\n|---|---|\n")
-                  f.write(f"| Model | {perc.get('model')} |\n")
-                  f.write(f"| Frames processed | {perc.get('frames_processed')} |\n")
-                  f.write(f"| Frames with detections | {perc.get('frames_with_detections')} |\n")
-                  f.write(f"| Detection rate | {perc.get('detection_rate')} |\n")
-                  f.write(f"| Avg latency | {perc.get('avg_latency_ms')} ms |\n")
-                  f.write(f"| Max confidence | {perc.get('max_confidence')} |\n")
-                  f.write(f"| Detected classes | {', '.join(perc.get('detected_classes', []))} |\n")
+                  f.write("\n## Variance Metrics (Reproducibility)\n\n")
+                  f.write("| Metric | Mean | Std Dev | Interpretation |\n")
+                  f.write("|---|---|---|---|\n")
+                  f.write(f"| Deviation from target | {dev_mean} m | ±{dev_std} m | Navigation consistency |\n")
+                  f.write(f"| Flight time | {ft_mean} s | ±{ft_std} s | Speed consistency |\n")
+                  f.write(f"| YOLO avg latency | {lat_mean} ms | ±{lat_std} ms | Perception consistency |\n")
+                  f.write(f"| Max speed (seeded) | {spd_mean} m/s | ±{spd_std} m/s | Condition variation |\n")
+                  f.write("\n> **Low std deviation = high reproducibility** across different seeded conditions.\n")
+                  f.write("> Same seed always produces identical results.\n")
           EOF
 
-      - name: Check overall result
+      - name: Check all runs passed
         run: |
           python3 -c "
           import json, sys
-          sim = json.load(open('metrics.json'))
-          perc = json.load(open('perception_results.json'))
-          passed = sim.get('mission_success', False) and perc.get('test_passed', False)
+          seeds = [42, 123, 456]
+          passed = True
+          for seed in seeds:
+              try:
+                  sim  = json.load(open(f'metrics-{seed}.json'))
+                  perc = json.load(open(f'perception-{seed}.json'))
+                  if not (sim.get('mission_success') and perc.get('test_passed')):
+                      passed = False
+              except:
+                  passed = False
           sys.exit(0 if passed else 1)
           "

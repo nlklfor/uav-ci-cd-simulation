@@ -1,5 +1,7 @@
 import math
 import json
+import os
+import random
 
 import cv2
 import rclpy
@@ -9,11 +11,17 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
+# Seeded randomness: same seed → identical run, different seed → different conditions
+SEED = int(os.environ.get('RANDOM_SEED', 42))
+_rng = random.Random(SEED)
+
 TARGET = (5.0, 3.0, 0.0)
 TOLERANCE = 0.5
-MAX_SPEED = 1.0
 TIMEOUT = 20.0
 METRICS_FILE = '/app/metrics.json'
+
+# Seed controls max speed — simulates varying wind / motor conditions
+MAX_SPEED = round(0.7 + _rng.random() * 0.6, 3)  # range: 0.7–1.3 m/s
 
 
 class UAVController(Node):
@@ -54,6 +62,8 @@ class UAVController(Node):
             self.mission_done = True
             metrics = {
                 'mission_success': False,
+                'seed': SEED,
+                'max_speed_ms': MAX_SPEED,
                 'target': {'x': TARGET[0], 'y': TARGET[1], 'z': TARGET[2]},
                 'final_position': {'x': 0.0, 'y': 0.0, 'z': 0.0},
                 'deviation_from_target_m': -1.0,
@@ -99,6 +109,8 @@ class UAVController(Node):
         cx, cy, cz = self.position
         metrics = {
             'mission_success': success,
+            'seed': SEED,
+            'max_speed_ms': MAX_SPEED,
             'target': {'x': TARGET[0], 'y': TARGET[1], 'z': TARGET[2]},
             'final_position': {'x': round(cx, 2), 'y': round(cy, 2), 'z': round(cz, 2)},
             'deviation_from_target_m': round(distance, 3),
