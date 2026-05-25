@@ -12,6 +12,8 @@ CONFIDENCE_THRESHOLD = 0.5
 LATENCY_THRESHOLD_MS = 200
 RESULTS_FILE = '/app/perception_results.json'
 SCENE_CAPTURE_FILE = '/app/scene_capture.jpg'
+SCENE_CAPTURE_MID_FILE = '/app/scene_capture_mid.jpg'
+MID_FLIGHT_FRAME = 15  # ~3s into flight, UAV flying over road with obstacles
 
 
 class PerceptionNode(Node):
@@ -40,6 +42,11 @@ class PerceptionNode(Node):
 
         self.latest_frame = frame
         self.frames_processed += 1
+
+        # Mid-flight snapshot: UAV is roughly above the road/obstacles
+        if self.frames_processed == MID_FLIGHT_FRAME:
+            cv2.imwrite(SCENE_CAPTURE_MID_FILE, frame)
+            self.get_logger().info(f'Mid-flight capture saved → {SCENE_CAPTURE_MID_FILE}')
 
         t0 = time.time()
         results = self.model(frame, verbose=False)

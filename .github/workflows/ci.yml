@@ -50,7 +50,8 @@ jobs:
             echo '{"mission_success": false, "seed": ${{ matrix.seed }}, "error": "simulation crashed"}' > metrics-${{ matrix.seed }}.json
           docker cp uav-run-${{ matrix.seed }}:/app/perception_results.json ./perception-${{ matrix.seed }}.json 2>/dev/null || \
             echo '{"test_passed": false, "frames_processed": 0, "error": "perception node did not run"}' > perception-${{ matrix.seed }}.json
-          docker cp uav-run-${{ matrix.seed }}:/app/scene_capture.jpg ./scene_capture_${{ matrix.seed }}.jpg 2>/dev/null || true
+          docker cp uav-run-${{ matrix.seed }}:/app/scene_capture.jpg ./scene_capture_end_${{ matrix.seed }}.jpg 2>/dev/null || true
+          docker cp uav-run-${{ matrix.seed }}:/app/scene_capture_mid.jpg ./scene_capture_mid_${{ matrix.seed }}.jpg 2>/dev/null || true
           docker rm uav-run-${{ matrix.seed }}
 
       - name: Upload simulation metrics
@@ -66,11 +67,13 @@ jobs:
           name: perception-${{ matrix.seed }}
           path: perception-${{ matrix.seed }}.json
 
-      - name: Upload scene capture
+      - name: Upload scene captures
         uses: actions/upload-artifact@v4
         with:
           name: scene-capture-${{ matrix.seed }}
-          path: scene_capture_${{ matrix.seed }}.jpg
+          path: |
+            scene_capture_end_${{ matrix.seed }}.jpg
+            scene_capture_mid_${{ matrix.seed }}.jpg
           if-no-files-found: warn
 
   report:
