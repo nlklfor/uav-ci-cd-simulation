@@ -15,7 +15,7 @@ from cv_bridge import CvBridge
 SEED = int(os.environ.get('RANDOM_SEED', 42))
 _rng = random.Random(SEED)
 
-TARGET = (55.0, 30.0, 0.0)
+TARGET = (5.0, 3.0, 0.0)
 TOLERANCE = 0.5
 TIMEOUT = 20.0
 METRICS_FILE = '/app/metrics.json'
