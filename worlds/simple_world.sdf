@@ -51,11 +51,28 @@
       <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>16 5.0 0.02</size></box>
+            <box><size>16 7.0 0.02</size></box>
           </geometry>
           <material>
             <ambient>0.15 0.15 0.15 1</ambient>
             <diffuse>0.15 0.15 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Yellow center line -->
+    <model name="road_center_line">
+      <static>true</static>
+      <pose>3.0 1.5 0.02 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box><size>16 0.2 0.01</size></box>
+          </geometry>
+          <material>
+            <ambient>1.0 0.85 0.0 1</ambient>
+            <diffuse>1.0 0.85 0.0 1</diffuse>
           </material>
         </visual>
       </link>
@@ -81,7 +98,7 @@
     <!-- Beige building south of road -->
     <model name="building_south">
       <static>true</static>
-      <pose>3.0 6.0 2.0 0 0 0</pose>
+      <pose>3.0 7.5 2.0 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -95,10 +112,10 @@
       </link>
     </model>
 
-    <!-- RED truck on road - directly under flight path -->
+    <!-- RED truck on road - south lane -->
     <model name="truck_red">
       <static>true</static>
-      <pose>2.5 1.2 0.75 0 0 0</pose>
+      <pose>2.5 0.0 0.75 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -112,10 +129,10 @@
       </link>
     </model>
 
-    <!-- BLUE truck on road - directly under flight path -->
+    <!-- BLUE truck on road - north lane -->
     <model name="truck_blue">
       <static>true</static>
-      <pose>4.5 1.8 0.75 0 0 0</pose>
+      <pose>4.5 3.0 0.75 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -132,7 +149,7 @@
     <!-- Person 1: bright white, north sidewalk -->
     <model name="person_1">
       <static>true</static>
-      <pose>2.0 -0.6 0.9 0 0 0</pose>
+      <pose>2.0 -1.5 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
@@ -149,7 +166,7 @@
     <!-- Person 2: bright magenta, south sidewalk -->
     <model name="person_2">
       <static>true</static>
-      <pose>4.0 3.6 0.9 0 0 0</pose>
+      <pose>4.0 5.5 0.9 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry>
