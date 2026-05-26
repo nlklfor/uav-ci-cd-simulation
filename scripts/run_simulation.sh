@@ -12,7 +12,7 @@ sleep 2
 echo "[1/4] Starting Gazebo..."
 ign gazebo /app/worlds/simple_world.sdf -r -s &
 
-sleep 20
+sleep 35
 
 echo "[2/4] Starting ROS-Gazebo Bridge..."
 ros2 run ros_gz_bridge parameter_bridge \
